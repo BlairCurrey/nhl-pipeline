@@ -1,17 +1,18 @@
-import { dateNowEST } from "../../utils";
+import { yesterdayDate, tomorrowDate } from "../../utils";
 
 export class NhlApiClient {
-  static async getTodaysGames() {
-    const scheduleUrl = `https://statsapi.web.nhl.com/api/v1/schedule?date=${dateNowEST()}`;
-    const res = await fetch(scheduleUrl);
+  static scheduleUrl = `https://statsapi.web.nhl.com/api/v1/schedule?startDate=${yesterdayDate()}&endDate=${tomorrowDate()}`;
+  
+  static async getSchedule() {
+    const res = await fetch(NhlApiClient.scheduleUrl);
     const schedule = await res.json();
 
-    if(!schedule?.dates?.[0]?.games) {
-      const msg = 'Could not find games'
-      console.warn(msg, {schedule})
+    if(!schedule?.dates) {
+      const msg = `Could not find dates for request: ${NhlApiClient.scheduleUrl}`;
+      console.warn(msg, {schedule});
       throw new Error(msg);
     }
 
-    return schedule.dates[0].games
+    return schedule.dates
   }
 }

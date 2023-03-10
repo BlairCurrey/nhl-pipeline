@@ -19,8 +19,8 @@ export class Game {
     this.status = status;
   }
 
-  async save(){
-    return await db(Game.table).insert({id: this.id, status: this.status});
+  async save(): Promise<IGame> {
+    return await db(Game.table).insert({id: this.id, status: this.status}, ['id', 'status']);
   }
 
   async update(){
@@ -29,7 +29,7 @@ export class Game {
 
   static async getById(id: IGame['id']){
     const res = await db(Game.table).where({id}).first();
-    if(!res) return res
+    if(!res) return null
     return new Game({id: res.id, status: res.status});
   }
 }
