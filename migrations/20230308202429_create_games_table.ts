@@ -3,7 +3,7 @@ import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable('games', function(table) {
-    table.string('id').notNullable();
+    table.string('id').notNullable().primary();
     table.string('status').notNullable();
   });
 }
