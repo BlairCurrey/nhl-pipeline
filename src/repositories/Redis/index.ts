@@ -8,7 +8,7 @@ export class Redis {
     this.queueName = queueName;
     this.client = new _Redis();
     this.client.on("connect", () => {
-      console.log("Connected to Redis server");
+      console.info("Connected to Redis server");
     });
     this.client.on("error", (err) => {
       console.error(`Redis error: ${err}`);

@@ -1,7 +1,7 @@
 import { Game } from '../../repositories/db/models/Game';
 import { NhlApiClient } from '../../repositories/NhlApiClient';
 import { Redis } from '../../repositories/Redis';
-import { monitor, updateGames } from './';
+import { monitor, updateGames } from '.';
 
 
 describe('monitor', () => {
@@ -15,7 +15,7 @@ describe('monitor', () => {
       cronJob: jest.fn(),
       updateGames: jest.fn(),
       redisRepository: jest.fn(),
-      gameRepository: jest.fn(),
+      gameModel: jest.fn(),
       nhlApiClient: jest.fn()
     };
     await monitor(cronString, mockDeps as any);
@@ -55,7 +55,7 @@ describe('monitor', () => {
 
     await updateGames({
       nhlApiClient: NhlApiClient,
-      gameRepository: Game as any,
+      gameModel: Game as any,
       redisRepository: Redis,
     });
     expect(NhlApiClient.getSchedule).toHaveBeenCalled();

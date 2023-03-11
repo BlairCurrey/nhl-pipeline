@@ -8,20 +8,20 @@ export interface MonitorDeps {
   cronJob: typeof CronJob
   updateGames: (deps: UpdateGameDeps) => Promise<void>
   redisRepository: typeof Redis
-  gameRepository: typeof Game
+  gameModel: typeof Game
   nhlApiClient: typeof NhlApiClient
 };
 
 export async function monitor(cronString: string, deps: MonitorDeps) {  
-  const { cronJob, updateGames, redisRepository, gameRepository, nhlApiClient } = deps;
+  const { cronJob, updateGames, redisRepository, gameModel, nhlApiClient } = deps;
   
   console.info(`${new Date()} - Starting NHL Schedule Monitor`);
   
   const updateGamesFn = async () => {
     await updateGames({
-      redisRepository: redisRepository,
-      gameRepository: gameRepository,
-      nhlApiClient: nhlApiClient
+      redisRepository,
+      gameModel,
+      nhlApiClient
     });
   };
   
@@ -32,12 +32,12 @@ export async function monitor(cronString: string, deps: MonitorDeps) {
 
 interface UpdateGameDeps {
   redisRepository: typeof Redis
-  gameRepository: typeof Game
+  gameModel: typeof Game
   nhlApiClient: typeof NhlApiClient
 }
 
 export async function updateGames(deps: UpdateGameDeps){
-  const { redisRepository, gameRepository, nhlApiClient } = deps;
+  const { redisRepository, gameModel, nhlApiClient } = deps;
   const redis = new redisRepository();
   try{
     console.info(`${new Date()} - Starting updateGame job`);
@@ -51,11 +51,11 @@ export async function updateGames(deps: UpdateGameDeps){
       date?.games.forEach(async (scheduledGame: any) => {
         // For each game, save the game if not found or update the status and push newly live games to queue
         const scheduledGameStatus = scheduledGame.status.abstractGameState;
-        const foundGame = await gameRepository.getById(scheduledGame.gamePk);
+        const foundGame = await gameModel.getById(scheduledGame.gamePk);
         // save the game
         if(!foundGame){
           console.info(`${new Date()} - Adding game ${scheduledGame.gamePk} to the database`);
-          const game = new gameRepository({ id: scheduledGame.gamePk, status: scheduledGameStatus });
+          const game = new gameModel({ id: scheduledGame.gamePk, status: scheduledGameStatus });
           await game.save();
         } else if (scheduledGameStatus !== foundGame.status) {
           // update the status

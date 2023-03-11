@@ -10,6 +10,6 @@ monitor('0 * 0-3,10-23 * 0-4,8-11 *', {
   cronJob: CronJob,
   updateGames,
   redisRepository: Redis,
-  gameRepository: Game,
+  gameModel: Game,
   nhlApiClient: NhlApiClient
 });
