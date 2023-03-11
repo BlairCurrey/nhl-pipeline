@@ -47,17 +47,19 @@ export async function updateGames(deps: UpdateGameDeps){
     const dates = await nhlApiClient.getSchedule();
 
     dates.forEach((date: any) => {
+      console.info(`${new Date()} - Checking ${date?.games?.length ?? 0} games`);
       date?.games.forEach(async (scheduledGame: any) => {
         // For each game, save the game if not found or update the status and push newly live games to queue
         const scheduledGameStatus = scheduledGame.status.abstractGameState;
         const foundGame = await gameRepository.getById(scheduledGame.gamePk);
         // save the game
         if(!foundGame){
+          console.info(`${new Date()} - Adding game ${scheduledGame.gamePk} to the database`);
           const game = new gameRepository({ id: scheduledGame.gamePk, status: scheduledGameStatus });
           await game.save();
-          console.info(`${new Date()} - Added game ${scheduledGame.gamePk} to the database`);
         } else if (scheduledGameStatus !== foundGame.status) {
           // update the status
+          console.info(`${new Date()} - Updating ${scheduledGame.gamePk} status to ${scheduledGameStatus}`);
           foundGame.status =  scheduledGameStatus;
           await foundGame.update();
 
@@ -65,14 +67,14 @@ export async function updateGames(deps: UpdateGameDeps){
             // push newly live game to queue.
             // worker will watch this queue and spawn ingestors
             await redis.enqueue(foundGame.id);
-            console.info(`${new Date()} - Game ${foundGame.id} is now live`);
+            console.info(`${new Date()} - Game ${foundGame.id} queued`);
           }
         };
       });
     })
+    redis.client.quit();
   } catch (err) {
     console.error(err);
-  } finally {
-    await redis.client.quit();
+    redis.client.quit();
   }
 }
