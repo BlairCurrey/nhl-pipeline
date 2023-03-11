@@ -1,28 +1,22 @@
 import { CronJob } from 'cron';
 import { Game } from '../../repositories/db/models/Game';
 import { NhlApiClient } from '../../repositories/NhlApiClient';
-import { Redis } from '../../repositories/Redis';
 
 
 export interface MonitorDeps {
   cronJob: typeof CronJob
   updateGames: (deps: UpdateGameDeps) => Promise<void>
-  redisRepository: typeof Redis
   gameModel: typeof Game
   nhlApiClient: typeof NhlApiClient
 };
 
 export async function monitor(cronString: string, deps: MonitorDeps) {  
-  const { cronJob, updateGames, redisRepository, gameModel, nhlApiClient } = deps;
+  const { cronJob, updateGames, gameModel, nhlApiClient } = deps;
   
   console.info(`${new Date()} - Starting NHL Schedule Monitor`);
   
   const updateGamesFn = async () => {
-    await updateGames({
-      redisRepository,
-      gameModel,
-      nhlApiClient
-    });
+    await updateGames({ gameModel, nhlApiClient });
   };
   
   // run immediately then schedule cron job
@@ -31,14 +25,12 @@ export async function monitor(cronString: string, deps: MonitorDeps) {
 }
 
 interface UpdateGameDeps {
-  redisRepository: typeof Redis
   gameModel: typeof Game
   nhlApiClient: typeof NhlApiClient
 }
 
 export async function updateGames(deps: UpdateGameDeps){
-  const { redisRepository, gameModel, nhlApiClient } = deps;
-  const redis = new redisRepository();
+  const { gameModel, nhlApiClient } = deps;
   try{
     console.info(`${new Date()} - Starting updateGame job`);
     // Get rolling window of games (yesterday through tomorrow).
@@ -66,15 +58,12 @@ export async function updateGames(deps: UpdateGameDeps){
           if (scheduledGameStatus === "Live"){
             // push newly live game to queue.
             // worker will watch this queue and spawn ingestors
-            await redis.enqueue(foundGame.id);
             console.info(`${new Date()} - Game ${foundGame.id} queued`);
           }
         };
       });
     })
-    redis.client.quit();
   } catch (err) {
     console.error(err);
-    redis.client.quit();
   }
 }
