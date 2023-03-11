@@ -1,0 +1,175 @@
+{
+  "copyright" : "NHL and the NHL Shield are registered trademarks of the National Hockey League. NHL and NHL team marks are the property of the NHL and its teams. © NHL 2023. All Rights Reserved.",
+  "totalItems" : 3,
+  "totalEvents" : 0,
+  "totalGames" : 3,
+  "totalMatches" : 0,
+  "metaData" : {
+    "timeStamp" : "20230308_174115"
+  },
+  "wait" : 10,
+  "dates" : [ {
+    "date" : "2023-03-08",
+    "totalItems" : 3,
+    "totalEvents" : 0,
+    "totalGames" : 3,
+    "totalMatches" : 0,
+    "games" : [ 
+      {
+      "gamePk" : 2022021023,
+      "link" : "/api/v1/game/2022021023/feed/live",
+      "gameType" : "R",
+      "season" : "20222023",
+      "gameDate" : "2023-03-09T00:30:00Z",
+      "status" : {
+        "abstractGameState" : "Preview",
+        "codedGameState" : "1",
+        "detailedState" : "Scheduled",
+        "statusCode" : "1",
+        "startTimeTBD" : false
+      },
+      "teams" : {
+        "away" : {
+          "leagueRecord" : {
+            "wins" : 36,
+            "losses" : 21,
+            "ot" : 7,
+            "type" : "league"
+          },
+          "score" : 0,
+          "team" : {
+            "id" : 30,
+            "name" : "Minnesota Wild",
+            "link" : "/api/v1/teams/30"
+          }
+        },
+        "home" : {
+          "leagueRecord" : {
+            "wins" : 36,
+            "losses" : 25,
+            "ot" : 3,
+            "type" : "league"
+          },
+          "score" : 0,
+          "team" : {
+            "id" : 52,
+            "name" : "Winnipeg Jets",
+            "link" : "/api/v1/teams/52"
+          }
+        }
+      },
+      "venue" : {
+        "id" : 5058,
+        "name" : "Canada Life Centre",
+        "link" : "/api/v1/venues/5058"
+      },
+      "content" : {
+        "link" : "/api/v1/game/2022021023/content"
+      }
+    }, {
+      "gamePk" : 2022021022,
+      "link" : "/api/v1/game/2022021022/feed/live",
+      "gameType" : "R",
+      "season" : "20222023",
+      "gameDate" : "2023-03-09T00:30:00Z",
+      "status" : {
+        "abstractGameState" : "Preview",
+        "codedGameState" : "1",
+        "detailedState" : "Scheduled",
+        "statusCode" : "1",
+        "startTimeTBD" : false
+      },
+      "teams" : {
+        "away" : {
+          "leagueRecord" : {
+            "wins" : 22,
+            "losses" : 36,
+            "ot" : 5,
+            "type" : "league"
+          },
+          "score" : 0,
+          "team" : {
+            "id" : 16,
+            "name" : "Chicago Blackhawks",
+            "link" : "/api/v1/teams/16"
+          }
+        },
+        "home" : {
+          "leagueRecord" : {
+            "wins" : 28,
+            "losses" : 26,
+            "ot" : 9,
+            "type" : "league"
+          },
+          "score" : 0,
+          "team" : {
+            "id" : 17,
+            "name" : "Detroit Red Wings",
+            "link" : "/api/v1/teams/17"
+          }
+        }
+      },
+      "venue" : {
+        "id" : 5145,
+        "name" : "Little Caesars Arena",
+        "link" : "/api/v1/venues/5145"
+      },
+      "content" : {
+        "link" : "/api/v1/game/2022021022/content"
+      }
+    }, {
+      "gamePk" : 2022021024,
+      "link" : "/api/v1/game/2022021024/feed/live",
+      "gameType" : "R",
+      "season" : "20222023",
+      "gameDate" : "2023-03-09T03:00:00Z",
+      "status" : {
+        "abstractGameState" : "Preview",
+        "codedGameState" : "1",
+        "detailedState" : "Scheduled",
+        "statusCode" : "1",
+        "startTimeTBD" : false
+      },
+      "teams" : {
+        "away" : {
+          "leagueRecord" : {
+            "wins" : 21,
+            "losses" : 35,
+            "ot" : 8,
+            "type" : "league"
+          },
+          "score" : 0,
+          "team" : {
+            "id" : 24,
+            "name" : "Anaheim Ducks",
+            "link" : "/api/v1/teams/24"
+          }
+        },
+        "home" : {
+          "leagueRecord" : {
+            "wins" : 26,
+            "losses" : 32,
+            "ot" : 5,
+            "type" : "league"
+          },
+          "score" : 0,
+          "team" : {
+            "id" : 23,
+            "name" : "Vancouver Canucks",
+            "link" : "/api/v1/teams/23"
+          }
+        }
+      },
+      "venue" : {
+        "id" : 5073,
+        "name" : "Rogers Arena",
+        "link" : "/api/v1/venues/5073"
+      },
+      "content" : {
+        "link" : "/api/v1/game/2022021024/content"
+      }
+    } ],
+    "events" : [ ],
+    "matches" : [ ]
+  } ]
+}

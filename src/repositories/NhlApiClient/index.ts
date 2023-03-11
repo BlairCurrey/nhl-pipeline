@@ -16,4 +16,10 @@ export class NhlApiClient {
 
     return schedule.dates
   }
+  
+  static async getGameData(gameId: string) {
+    const gameDataUrl = `https://statsapi.web.nhl.com/api/v1/game/${gameId}/feed/live`;
+    const res = await fetch(gameDataUrl);
+    return await res.json();
+  }
 }
