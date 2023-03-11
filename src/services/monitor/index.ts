@@ -1,6 +1,8 @@
 import { CronJob } from 'cron';
 import { Game } from '../../repositories/db/models/Game';
 import { NhlApiClient } from '../../repositories/NhlApiClient';
+import { spawn } from 'child_process';
+import * as path from 'path';
 
 
 export interface MonitorDeps {
@@ -56,9 +58,10 @@ export async function updateGames(deps: UpdateGameDeps){
           await foundGame.update();
 
           if (scheduledGameStatus === "Live"){
-            // push newly live game to queue.
-            // worker will watch this queue and spawn ingestors
-            console.info(`${new Date()} - Game ${foundGame.id} queued`);
+            // spawn ingest process
+            const ingestPath = path.join(__dirname, '../ingest/index.js');
+            const childProcess = spawn('node', [ingestPath, foundGame.id]);
+            console.info(`${new Date()} - Ingesting game: ${foundGame.id} in pid: ${childProcess.pid}`);
           }
         };
       });
