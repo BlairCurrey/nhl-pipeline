@@ -34,6 +34,7 @@ interface UpdateGameDeps {
 
 export async function updateGames(deps: UpdateGameDeps){
   const { gameModel, nhlApiClient } = deps;
+
   try{
     console.info(`${new Date()} - Starting updateGame job`);
     // Get rolling window of games (yesterday through tomorrow).

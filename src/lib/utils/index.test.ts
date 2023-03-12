@@ -1,4 +1,4 @@
-import { yesterdayDate, tomorrowDate } from "./";
+import { yesterdayDate, tomorrowDate } from ".";
 import { DateTime } from "luxon";
 
 describe("utils", () => {
