@@ -1,4 +1,4 @@
-import { yesterdayDate, tomorrowDate } from "../../utils";
+import { yesterdayDate, tomorrowDate } from "../../lib/utils";
 
 export class NhlApiClient {
   static scheduleUrl = () => `https://statsapi.web.nhl.com/api/v1/schedule?startDate=${yesterdayDate()}&endDate=${tomorrowDate()}`;
@@ -17,7 +17,7 @@ export class NhlApiClient {
     return schedule.dates
   }
   
-  static async getGameData(gameId: string) {
+  static async getGameData(gameId: number) {
     const gameDataUrl = `https://statsapi.web.nhl.com/api/v1/game/${gameId}/feed/live`;
     const res = await fetch(gameDataUrl);
     return await res.json();

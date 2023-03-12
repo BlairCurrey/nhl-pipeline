@@ -1,15 +1,16 @@
 import { GameStat } from "../../repositories/db/models/GameStat";
 import { NhlApiClient } from "../../repositories/NhlApiClient";
 import { parseGameData } from "./parseGameData";
+import process from 'process';
 
 interface IngestDeps {
   gameStatModel: typeof GameStat
   nhlApiClient: typeof NhlApiClient
 }
 
-export async function ingest(gameId: string, deps: IngestDeps) {
+export async function ingest(gameId: number, deps: IngestDeps) {
   const { nhlApiClient, gameStatModel } = deps;
-  console.info(`${new Date()} - Starting ingestion of gameId: ${gameId}`);
+  console.info(`${new Date()} - Starting ingestion of gameId: ${gameId} on pid: ${process.pid}`);
 
   const updateGameData = async() => {
     let status
@@ -18,8 +19,13 @@ export async function ingest(gameId: string, deps: IngestDeps) {
     try {
       const data = await nhlApiClient.getGameData(gameId);
       status = data?.gameData?.status?.abstractGameState
-      const gameStats = parseGameData(data);
 
+      if (status === 'Preview') {
+        console.info(`${new Date()} - Status is preview, exiting gameId: ${gameId} on pid: ${process.pid}`);
+        process.exit(0)
+      }
+
+      const gameStats = parseGameData(data);
       gs = gameStats
 
       await gameStatModel.batchUpsert(gameStats)
@@ -30,7 +36,7 @@ export async function ingest(gameId: string, deps: IngestDeps) {
     }
 
     if (status === 'Final') {
-      console.info(`${new Date()} - Status is final, exiting`);
+      console.info(`${new Date()} - Status is final, exiting gameId: ${gameId} on pid: ${process.pid}`);
       process.exit(0)
     }
   }
