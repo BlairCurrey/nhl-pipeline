@@ -66,7 +66,6 @@ export async function updateGames(deps: UpdateGameDeps){
         };
 
         if(currentStatus === 'Live'){
-          console.log('WE ARE LIVE')
           // start ingesting in new process.
           const ingestPath = path.join(__dirname, '../ingest/index.js');
           const childProcess = spawn('node', [ingestPath, scheduledGame.gamePk], {
