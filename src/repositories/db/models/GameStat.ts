@@ -26,4 +26,12 @@ export class GameStat {
       .onConflict(['game_id', 'player_id'])
       .merge()
   }
+
+  static async getAllByGameId(gameId: number): Promise<IGameStat[]> {
+    return await db(GameStat.table).where({game_id: gameId})
+  }
+
+  static async getAll(): Promise<IGameStat[]> {
+    return await db(GameStat.table)
+  }
 }
