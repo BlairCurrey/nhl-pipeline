@@ -3,6 +3,7 @@ import { Game } from '../../repositories/db/models/Game';
 import { NhlApiClient } from '../../repositories/NhlApiClient';
 import { spawn } from 'child_process';
 import * as path from 'path';
+import fs from 'fs';
 
 
 export interface MonitorDeps {
@@ -39,31 +40,45 @@ export async function updateGames(deps: UpdateGameDeps){
     // Window avoids potential issues with day boundaries such  as not
     // updating game status that started before midnight and ended after midnight
     const dates = await nhlApiClient.getSchedule();
+    const out = fs.openSync('./out.log', 'a');
+    const err = fs.openSync('./out.log', 'a');
 
     dates.forEach((date: any) => {
       console.info(`${new Date()} - Checking ${date?.games?.length ?? 0} games`);
       date?.games.forEach(async (scheduledGame: any) => {
         // For each game, save the game if not found or update the status and push newly live games to queue
-        const scheduledGameStatus = scheduledGame.status.abstractGameState;
+        const currentStatus = scheduledGame.status.abstractGameState;
         const foundGame = await gameModel.getById(scheduledGame.gamePk);
-        // save the game
-        if(!foundGame){
-          console.info(`${new Date()} - Adding game ${scheduledGame.gamePk} to the database`);
-          const game = new gameModel({ id: scheduledGame.gamePk, status: scheduledGameStatus });
-          await game.save();
-        } else if (scheduledGameStatus !== foundGame.status) {
-          // update the status
-          console.info(`${new Date()} - Updating ${scheduledGame.gamePk} status to ${scheduledGameStatus}`);
-          foundGame.status =  scheduledGameStatus;
-          await foundGame.update();
 
-          if (scheduledGameStatus === "Live"){
-            // spawn ingest process
-            const ingestPath = path.join(__dirname, '../ingest/index.js');
-            const childProcess = spawn('node', [ingestPath, foundGame.id]);
-            console.info(`${new Date()} - Ingesting game: ${foundGame.id} in pid: ${childProcess.pid}`);
-          }
+        // do nothing if game was previously seen and is unchanged
+        if(foundGame && currentStatus === foundGame.status) return
+
+        if(!foundGame){
+          // save newly seen games
+          console.info(`${new Date()} - Adding game ${scheduledGame.gamePk} to the database`);
+          const game = new gameModel({ id: scheduledGame.gamePk, status: currentStatus });
+          await game.save();
+        } else {
+          // update status of previously seen games
+          console.info(`${new Date()} - Updating ${scheduledGame.gamePk} status to ${currentStatus}`);
+          foundGame.status =  currentStatus;
+          await foundGame.update();
         };
+
+        if(currentStatus === 'Live'){
+          console.log('WE ARE LIVE')
+          // start ingesting in new process.
+          const ingestPath = path.join(__dirname, '../ingest/index.js');
+          const childProcess = spawn('node', [ingestPath, scheduledGame.gamePk], {
+            // detatch and reroute stdio to file so killing this process wont kill children.
+            detached: true,
+            stdio: [ 'ignore', out, err ]
+          });
+          // unref because this process should not wait for children to exit
+          childProcess.unref();
+
+          console.info(`${new Date()} - Ingesting game: ${scheduledGame.gamePk} in pid: ${childProcess.pid}`);
+        }
       });
     })
   } catch (err) {
