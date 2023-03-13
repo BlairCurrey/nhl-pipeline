@@ -1,4 +1,4 @@
-import db from '..'
+import getKnexInstance from '..'
 
 export interface IGameStat {
   game_id: number
@@ -20,18 +20,19 @@ export interface IGameStat {
 
 export class GameStat {
   static table = 'game_stats';
+  static db = getKnexInstance();
 
   static async batchUpsert(gameStats: IGameStat[]){
-    await db(GameStat.table).insert(gameStats)
+    await GameStat.db(GameStat.table).insert(gameStats)
       .onConflict(['game_id', 'player_id'])
       .merge()
   }
 
   static async getAllByGameId(gameId: number): Promise<IGameStat[]> {
-    return await db(GameStat.table).where({game_id: gameId})
+    return await GameStat.db(GameStat.table).where({game_id: gameId})
   }
 
   static async getAll(): Promise<IGameStat[]> {
-    return await db(GameStat.table)
+    return await GameStat.db(GameStat.table)
   }
 }

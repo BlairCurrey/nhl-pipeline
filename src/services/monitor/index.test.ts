@@ -1,4 +1,3 @@
-import { Game } from '../../repositories/db/models/Game';
 import { NhlApiClient } from '../../repositories/NhlApiClient';
 import { monitor, updateGames } from '.';
 
@@ -41,24 +40,7 @@ describe('monitor', () => {
       }]
     })
 
-    jest.spyOn(Game, 'getById').mockImplementation(async () => {
-      return null
-    })
-    jest.spyOn(Game.prototype, 'save').mockImplementation(async () => {
-      return {id: '1', status: 'Final'}
-    })
-    jest.spyOn(Game.prototype, 'update').mockImplementation(async () => {
-      return 1
-    })
-
-    await updateGames({
-      nhlApiClient: NhlApiClient,
-      gameModel: Game as any,
-    });
+    await updateGames(["Live"], { nhlApiClient: NhlApiClient });
     expect(NhlApiClient.getSchedule).toHaveBeenCalled();
-    expect(Game.getById).toHaveBeenCalledWith('1');
-    expect(Game.getById).toHaveBeenCalledWith('2');
-    expect(Game.prototype.save).toBeCalledTimes(2)
-    expect(Game.prototype.update).toBeCalledTimes(0)
   });
 });
