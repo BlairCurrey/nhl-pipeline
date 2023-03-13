@@ -47,7 +47,7 @@ I did some back-of-the-envolope math on the execution time of `monitor` and `ing
 I am not sure if the costs associated with increased schedule polling are prohibitive or not but it lead me to think about the following variation:
   - monitor schedule intelligently. poll nhl schedule with increasing frequence as we get closer to a game and update the schedule in the database. dont start any processes.
     - this reduces costs related to outside network traffic and adds costs for writing to db
-  - new worker service continuously polls our database for schedule. This decouples our ingest update interval from our liveness probe from our schedule updates.
+  - new worker service continuously polls our database for schedule. This decouples our ingest update interval from our schedule poll interval.
     - adds an extra reads cost
   - ingest stays the same. it just fires 1 api call and upserts
 
