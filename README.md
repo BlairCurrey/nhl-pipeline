@@ -1,3 +1,6 @@
+# Overview
+For more context on my experience developing this pipeline, alternatives I considered, and a critique of the implementation [see the overview](docs/overview.md)
+
 # Local Development
 This was developed locally on an M1 Mac using node version 18.13.0, a docker postgres container, and yarn for package management. 
 
