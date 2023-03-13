@@ -38,7 +38,7 @@ Start the main monitor service:
 <br>
 Ingest game stats for a given season (or seasons):
 
-    yarn ingest-seasons 20212022 20222023
+    yarn ingest-seasons 20222023 20212022
 
 > NOTE: This can take around ~10 minutes for each season and spawns a new process for each game. In my experience this has not caused problems, as the processes are short-lived and there is a delay between each one. You can modifying the delay in `updateGames` or ingest 1 season at a time if this proves too intensive. You can use `ps -e | grep ingest` to monitor if desired.
 
