@@ -23,14 +23,19 @@ export function serve(port: number, deps: ServeDeps) {
       return;
     }
 
-    const gameStats = await gameStat.getAllByGameId(gameId);
-
-    if (!gameStats) {
-      res.status(404).send('Game stats not found');
-      return;
+    try {
+      const gameStats = await gameStat.getAllByGameId(gameId);
+  
+      if (!gameStats) {
+        res.status(404).send('Game stats not found');
+        return;
+      }
+  
+      res.json(gameStats);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error retrieving game stats');
     }
-
-    res.json(gameStats);
   });
 
   app.listen(port, () => {
