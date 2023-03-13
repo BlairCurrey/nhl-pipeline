@@ -9,3 +9,5 @@ export function yesterdayDate() {
 export function tomorrowDate() {
   return DateTime.now().setZone("America/New_York").plus({ days: 1 }).toISODate()
 }
+
+export const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));

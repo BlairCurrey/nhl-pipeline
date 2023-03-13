@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/src/index.js",
+    "ingest-seasons": "node dist/src/services/monitor/runIngestSeasons.js",
     "api": "node dist/src/services/api/index.js",
     "test": "jest",
     "up": "knex migrate:latest",

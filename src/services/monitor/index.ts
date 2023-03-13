@@ -3,12 +3,12 @@ import { NhlApiClient } from '../../repositories/NhlApiClient';
 import { spawn } from 'child_process';
 import * as path from 'path';
 import fs from 'fs';
-import { NonEmptyArray } from '../../lib/utils';
+import { NonEmptyArray, sleep } from '../../lib/utils';
 
-
+type UpdateGamesType = (dates: any[], statusesToIngest: NonEmptyArray<string>, deps: UpdateGamesDeps) => Promise<void>
 export interface MonitorDeps {
   cronJob: typeof CronJob
-  updateGames: (statusesToIngest: NonEmptyArray<string>, deps: UpdateGameDeps) => Promise<void>
+  updateGames: UpdateGamesType
   nhlApiClient: typeof NhlApiClient
 };
 
@@ -18,7 +18,15 @@ export async function monitor(cronString: string, deps: MonitorDeps) {
   console.info(`${new Date()} - Starting NHL Schedule Monitor`);
   
   const updateGamesFn = async () => {
-    await updateGames(["Live"], { nhlApiClient });
+    // Get rolling window of games (yesterday through tomorrow).
+    // Window avoids potential issues with day boundaries such  as not
+    // updating game status that started before midnight and ended after midnight
+    try {
+      const dates = await nhlApiClient.getScheduleToday();
+      await updateGames(dates, ["Live"], { spawn });
+    } catch (err) {
+      console.error(`${new Date()} - Could not update games`, err);
+    }
   };
   
   // run immediately then schedule cron job
@@ -26,31 +34,44 @@ export async function monitor(cronString: string, deps: MonitorDeps) {
   new cronJob(cronString, updateGamesFn, null, true, 'America/New_York');
 }
 
-interface UpdateGameDeps {
+export interface IngestSeasonsDeps {
+  updateGames: UpdateGamesType
   nhlApiClient: typeof NhlApiClient
+};
+
+export async function ingestSeasons(seasons: string[], deps: IngestSeasonsDeps) {  
+  const { updateGames, nhlApiClient } = deps;
+  
+  console.info(`${new Date()} - Starting NHL Season Ingestor Spawner`);
+  
+  try {
+    const dates = await nhlApiClient.getScheduleSeasons(seasons);
+    await updateGames(dates, ['Final'], { spawn });
+  } catch (err) {
+    console.error(`${new Date()} - Could not update games`, err);
+  }
 }
 
-export async function updateGames(statusesToIngest: NonEmptyArray<string>, deps: UpdateGameDeps){
-  const { nhlApiClient } = deps;
+interface UpdateGamesDeps {
+  spawn: typeof spawn
+}
 
+export async function updateGames(dates: any[], statusesToIngest: NonEmptyArray<string>, deps: UpdateGamesDeps){
+  const { spawn } = deps;
   try{
     console.info(`${new Date()} - Starting updateGame job`);
-    // Get rolling window of games (yesterday through tomorrow).
-    // Window avoids potential issues with day boundaries such such as
-    // not seeing live game that started on previous day
-    const dates = await nhlApiClient.getSchedule();
     const out = fs.openSync('./out.log', 'a');
     const err = fs.openSync('./out.log', 'a');
 
-    dates.forEach((date: any) => {
+    for (const date of dates){
       console.info(`${new Date()} - Checking ${date?.games?.length ?? 0} games`);
-      date?.games.forEach(async (scheduledGame: any) => {
-        const status = scheduledGame.status.abstractGameState;
-        if(!statusesToIngest.includes(status)) return
+      for (const game of date.games) {
+        const status = game.status.abstractGameState;
+        if(!statusesToIngest.includes(status)) continue;
 
         // start ingesting in new process.
         const ingestPath = path.join(__dirname, '../ingest/index.js');
-        const childProcess = spawn('node', [ingestPath, scheduledGame.gamePk], {
+        const childProcess = spawn('node', [ingestPath, game.gamePk], {
           // detatch and reroute stdio to file so killing this process wont kill children.
           detached: true,
           stdio: [ 'ignore', out, err ]
@@ -58,9 +79,10 @@ export async function updateGames(statusesToIngest: NonEmptyArray<string>, deps:
         // unref because this process should not wait for children to exit
         childProcess.unref();
 
-        console.info(`${new Date()} - Ingesting game: ${scheduledGame.gamePk} in pid: ${childProcess.pid}`);
-      });
-    })
+        console.info(`${new Date()} - Ingesting game: ${game.gamePk} in pid: ${childProcess.pid}`);
+        await sleep(500);
+      }
+    }
   } catch (err) {
     console.error(err);
   }
