@@ -19,7 +19,7 @@ export async function monitor(cronString: string, deps: MonitorDeps) {
   
   const updateGamesFn = async () => {
     // Get rolling window of games (yesterday through tomorrow).
-    // Window avoids potential issues with day boundaries such  as not
+    // Window avoids potential issues with day boundaries such as not
     // updating game status that started before midnight and ended after midnight
     try {
       const dates = await nhlApiClient.getScheduleToday();
