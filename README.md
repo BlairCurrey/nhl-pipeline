@@ -54,7 +54,7 @@ Get the game stats (akin to box score) for a given game id:
 
     curl localhost:8080/game-stats/2022010001
 
-## Accessign Postgres Shell in Docker Container
+## Accessing Postgres Shell in Docker Container
 Replace "nhl-pipeline-db-1" with container name as needed.
 
     docker exec -it nhl-pipeline-db-1 bash
